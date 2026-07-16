@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lely_robot_dashboard/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:lely_robot_dashboard/features/dashboard/presentation/dashboard_page.dart';
 
 class AuthPage extends StatelessWidget {
   const AuthPage({super.key});
@@ -59,6 +60,8 @@ class AuthPage extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: 10.0),
                       child: TextFormField(
+                        autofocus: true,
+                        autovalidateMode: .onUserInteraction,
                         controller: context
                             .read<AuthCubit>()
                             .usernameController,
@@ -86,6 +89,7 @@ class AuthPage extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: 10.0),
                       child: TextFormField(
+                        autovalidateMode: .onUserInteraction,
                         controller: context
                             .read<AuthCubit>()
                             .passwordController,
@@ -124,48 +128,59 @@ class AuthPage extends StatelessWidget {
                     const SizedBox(height: 10),
 
                     // Login button
-                    SizedBox(
-                      height: 50,
-                      width: MediaQuery.of(context).size.width,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red[900],
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(9.0),
+                    BlocConsumer<AuthCubit, AuthState>(
+                      listener: (context, state) {
+                        if (state.hasError) {
+                          SnackBar snackBar = SnackBar(
+                            content: Text(state.error!),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        }
+                        if (state.hasData) {
+                          SnackBar snackBar = SnackBar(
+                            content: Text("Succesfull Operation"),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const DashboardPage(),
+                            ),
+                          );
+                        }
+                      },
+                      builder: (context, state) {
+                        return SizedBox(
+                          height: 50,
+                          width: MediaQuery.of(context).size.width,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red[900],
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(9.0),
+                              ),
+                            ),
+                            onPressed: () {
+                              context.read<AuthCubit>().login();
+                            }, // Empty action
+                            child: state.isLoading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(),
+                                  )
+                                : const Text(
+                                    'Login',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                           ),
-                        ),
-                        onPressed: () {
-                          context
-                              .read<AuthCubit>()
-                              .formKey
-                              .currentState!
-                              .validate();
-                        }, // Empty action
-                        child: const Text(
-                          'Login',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
+                        );
+                      },
                     ),
-
-                    const SizedBox(height: 40),
-
-                    // Sign-up text at the bottom
-                    Center(
-                      child: Text(
-                        'Sign up!',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.red[900],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
                   ],
                 ),
               ),

@@ -18,7 +18,7 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primaryColor: Colors.red[900]),
       home: BlocProvider(
-        create: (context) => AuthCubit(),
+        create: (context) => getIt<AuthCubit>(),
         child: const AuthPage(),
       ),
     );
