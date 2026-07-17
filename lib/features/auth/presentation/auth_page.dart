@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lely_robot_dashboard/core/di/injection.dart';
 import 'package:lely_robot_dashboard/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:lely_robot_dashboard/features/dashboard/presentation/cubit/dashboard_cubit.dart';
 import 'package:lely_robot_dashboard/features/dashboard/presentation/dashboard_page.dart';
 
 class AuthPage extends StatelessWidget {
@@ -56,7 +58,7 @@ class AuthPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
-                    // Email input field
+                    // Username input field
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: 10.0),
                       child: TextFormField(
@@ -71,11 +73,14 @@ class AuthPage extends StatelessWidget {
                           }
                           return null;
                         },
-                        keyboardType: TextInputType.emailAddress,
+                        keyboardType: TextInputType.name,
                         decoration: InputDecoration(
-                          hintText: 'Email',
-                          labelText: 'Email',
-                          prefixIcon: Icon(Icons.email, color: Colors.red[900]),
+                          hintText: 'Username',
+                          labelText: 'Username',
+                          prefixIcon: Icon(
+                            Icons.person,
+                            color: Colors.red[900],
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.all(
                               Radius.circular(9.0),
@@ -141,12 +146,6 @@ class AuthPage extends StatelessWidget {
                             content: Text("Succesfull Operation"),
                           );
                           ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const DashboardPage(),
-                            ),
-                          );
                         }
                       },
                       builder: (context, state) {

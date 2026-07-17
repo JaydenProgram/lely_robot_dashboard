@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lely_robot_dashboard/features/dashboard/presentation/cubit/dashboard_cubit.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -12,7 +14,18 @@ class DashboardPage extends StatelessWidget {
         foregroundColor: Colors.white,
         centerTitle: true,
       ),
-      body: const Center(child: Text('Welcome to your Dashboard!')),
+      body: BlocConsumer<DashboardCubit, DashboardState>(
+        listener: (context, state) {},
+        builder: (context, state) {
+          return state.isLoading
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(),
+                )
+              : Center(child: Text(state.data.toString()));
+        },
+      ),
     );
   }
 }

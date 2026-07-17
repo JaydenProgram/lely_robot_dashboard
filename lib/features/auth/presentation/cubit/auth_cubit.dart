@@ -24,14 +24,14 @@ class AuthCubit extends Cubit<AuthState> {
     }
 
     try {
-      emit(state.copyWith(true, false, false, null));
+      emit(state.copyWith(true, false, false, null)); //loading
       await authDataSource.login(
         usernameController.text,
         passwordController.text,
       );
-      emit(state.copyWith(false, false, true, null));
+      emit(state.copyWith(false, false, true, null)); //data passed
     } on Exception catch (e) {
-      emit(state.copyWith(false, true, false, e.toString()));
+      emit(state.copyWith(false, true, false, e.toString())); //error
     }
   }
 }
