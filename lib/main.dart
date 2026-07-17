@@ -26,7 +26,7 @@ class MainApp extends StatelessWidget {
               listenWhen: (previous, current) =>
                   !previous.hasData && current.hasData,
               listener: (context, state) {
-                Navigator.of(context).push(
+                Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
                     builder: (_) => BlocProvider(
                       create: (_) =>
