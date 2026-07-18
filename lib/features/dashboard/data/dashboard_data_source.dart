@@ -1,10 +1,11 @@
 import 'dart:developer';
 
 import 'package:injectable/injectable.dart';
+import 'package:intl/intl.dart';
 
 @lazySingleton
 class DashboardDataSource {
-  final List<Map<String, String>> collectorData = const [
+  final List<Map<String, String>> collectorData = [
     {"date": "08/10/2025", "duration": "742 min"},
     {"date": "09/10/2025", "duration": "391 min"},
     {"date": "10/10/2025", "duration": "876 min"},
@@ -101,11 +102,32 @@ class DashboardDataSource {
   ];
 
   Future<List<Map<String, String>>> fetchCollectorData() async {
-    if (collectorData.isNotEmpty) {
-      log('Data fetched succesfully!');
-      return collectorData;
-    } else {
+    if (collectorData.isEmpty) {
       throw Exception("Could not fetch data");
     }
+
+    log('Data fetched succesfully!');
+    return List.from(collectorData);
+  }
+
+  Future<void> saveNewRecord(String date, String durationInMinutes) async {
+    bool isDuplicate = collectorData.any((record) => record["date"] == date);
+
+    if (isDuplicate) {
+      throw Exception(
+        "Duplicate dates are not allowed. Please select a different date.",
+      );
+    }
+
+    collectorData.add({"date": date, "duration": "$durationInMinutes min"});
+    final DateFormat formatter = DateFormat("dd/MM/yyyy");
+
+    collectorData.sort((a, b) {
+      final DateTime dateA = formatter.parse(a["date"]!);
+      final DateTime dateB = formatter.parse(b["date"]!);
+      return dateA.compareTo(dateB);
+    });
+
+    log('New record saved and database sorted!');
   }
 }

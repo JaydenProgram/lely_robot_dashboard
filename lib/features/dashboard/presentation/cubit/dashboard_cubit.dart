@@ -20,4 +20,16 @@ class DashboardCubit extends Cubit<DashboardState> {
       emit(state.copyWith(false, true, false, [], e.toString())); //error
     }
   }
+
+  void addDashboardRecord(String date, String durationInMinutes) async {
+    try {
+      emit(state.copyWith(true, false, false, state.data, null));
+      await Future.delayed(const Duration(seconds: 1));
+      await dashboardDataSource.saveNewRecord(date, durationInMinutes);
+      final updatedData = await dashboardDataSource.fetchCollectorData();
+      emit(state.copyWith(false, false, true, updatedData, null));
+    } on Exception catch (e) {
+      emit(state.copyWith(false, true, true, state.data, e.toString()));
+    }
+  }
 }
