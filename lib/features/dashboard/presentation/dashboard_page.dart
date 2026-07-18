@@ -27,7 +27,14 @@ class DashboardPage extends StatelessWidget {
           if (state.hasData) {
             return Stack(
               children: [
-                Column(children: [DashboardChart(data: state.data!)]),
+                Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsetsGeometry.only(top: 48),
+                      child: DashboardChart(data: state.data!),
+                    ),
+                  ],
+                ),
                 if (state.isLoading)
                   const Center(child: CircularProgressIndicator()),
                 Positioned(
