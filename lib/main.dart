@@ -20,6 +20,7 @@ class MainApp extends StatelessWidget {
     return BlocProvider(
       create: (_) => getIt<AuthCubit>(),
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         home: Builder(
           builder: (context) {
             return BlocListener<AuthCubit, AuthState>(
