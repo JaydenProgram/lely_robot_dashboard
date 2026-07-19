@@ -81,6 +81,11 @@ class AuthPageState extends State<AuthPage> {
                           if (value == null || value.isEmpty) {
                             return "Please Enter Your Username";
                           }
+                          if (RegExp(
+                            r'[!@#<>?":_`~;[\]\\|=+)(*&^%$-]',
+                          ).hasMatch(value)) {
+                            return "Special characters are not allowed";
+                          }
                           return null;
                         },
                         keyboardType: TextInputType.name,
@@ -110,11 +115,7 @@ class AuthPageState extends State<AuthPage> {
                           if (value == null || value.isEmpty) {
                             return "Please Enter Your Password";
                           }
-                          if (RegExp(
-                            r'[!@#<>?":_`~;[\]\\|=+)(*&^%$-]',
-                          ).hasMatch(value)) {
-                            return "Special characters are not allowed";
-                          }
+
                           return null;
                         },
                         obscureText: true,
