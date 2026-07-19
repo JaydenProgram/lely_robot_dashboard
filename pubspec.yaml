@@ -1,6 +1,6 @@
 name: lely_robot_dashboard
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0+1
 
 environment:
@@ -19,6 +19,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  bloc_test: ^10.0.0
+  mocktail: ^1.0.5
   flutter_lints: ^6.0.0
   build_runner: ^2.15.1
   injectable_generator: ^3.0.2

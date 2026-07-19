@@ -13,7 +13,12 @@ class AuthState {
     this.error,
   });
 
-  AuthState copyWith(isLoading, hasError, hasData, error) {
+  AuthState copyWith(
+    bool isLoading,
+    bool hasError,
+    bool hasData,
+    String? error,
+  ) {
     return AuthState(
       isLoading: isLoading,
       hasError: hasError,

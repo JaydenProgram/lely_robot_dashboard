@@ -1,12 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lely_robot_dashboard/core/di/injection.dart';
 import 'package:lely_robot_dashboard/features/auth/presentation/cubit/auth_cubit.dart';
-import 'package:lely_robot_dashboard/features/dashboard/presentation/cubit/dashboard_cubit.dart';
-import 'package:lely_robot_dashboard/features/dashboard/presentation/dashboard_page.dart';
 
-class AuthPage extends StatelessWidget {
+class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
+
+  State<AuthPage> createState() => AuthPageState();
+}
+
+class AuthPageState extends State<AuthPage> {
+  TextEditingController usernameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  final formKey = GlobalKey<FormState>();
+
+  @override
+  void dispose() {
+    usernameController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +31,7 @@ class AuthPage extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Form(
-          key: context.read<AuthCubit>().formKey,
+          key: formKey,
           child: Column(
             children: <Widget>[
               // Logo Section
@@ -64,9 +76,7 @@ class AuthPage extends StatelessWidget {
                       child: TextFormField(
                         autofocus: true,
                         autovalidateMode: .onUserInteraction,
-                        controller: context
-                            .read<AuthCubit>()
-                            .usernameController,
+                        controller: usernameController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return "Please Enter Your Username";
@@ -95,12 +105,15 @@ class AuthPage extends StatelessWidget {
                       padding: EdgeInsets.symmetric(vertical: 10.0),
                       child: TextFormField(
                         autovalidateMode: .onUserInteraction,
-                        controller: context
-                            .read<AuthCubit>()
-                            .passwordController,
+                        controller: passwordController,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return "Please Enter Your Password";
+                          }
+                          if (RegExp(
+                            r'[!@#<>?":_`~;[\]\\|=+)(*&^%$-]',
+                          ).hasMatch(value)) {
+                            return "Special characters are not allowed";
                           }
                           return null;
                         },
@@ -117,20 +130,6 @@ class AuthPage extends StatelessWidget {
                         ),
                       ),
                     ),
-
-                    // Forgot Password link
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: null, // Disabled
-                        child: Text(
-                          'Forgot Password?',
-                          style: TextStyle(color: Colors.red[900]),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 10),
 
                     // Login button
                     BlocConsumer<AuthCubit, AuthState>(
@@ -161,8 +160,14 @@ class AuthPage extends StatelessWidget {
                               ),
                             ),
                             onPressed: () {
-                              context.read<AuthCubit>().login();
-                            }, // Empty action
+                              if (!formKey.currentState!.validate()) {
+                                return;
+                              }
+                              context.read<AuthCubit>().login(
+                                usernameController.text,
+                                passwordController.text,
+                              );
+                            },
                             child: state.isLoading
                                 ? const SizedBox(
                                     width: 20,
