@@ -1,6 +1,5 @@
-
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lely_robot_dashboard/features/dashboard/presentation/cubit/dashboard_cubit.dart';
 import 'package:lely_robot_dashboard/features/dashboard/presentation/date_input_widget.dart';
@@ -11,11 +10,12 @@ class AddActivitySheet extends StatefulWidget {
   const AddActivitySheet({super.key, required this.data});
 
   @override
-  State<AddActivitySheet> createState() => _AddActivitySheetState();
+  State<AddActivitySheet> createState() => AddActivitySheetState();
 }
 
-class _AddActivitySheetState extends State<AddActivitySheet> {
+class AddActivitySheetState extends State<AddActivitySheet> {
   final TextEditingController minutesController = TextEditingController();
+  final formKey = GlobalKey<FormState>();
   String? selectedDate;
 
   @override
@@ -33,99 +33,121 @@ class _AddActivitySheetState extends State<AddActivitySheet> {
         right: 24,
         top: 12,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 16),
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
+      child: Form(
+        key: formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
             ),
-          ),
-          const Text(
-            'Add Robot Activity Record',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+            const Text(
+              'Add Robot Activity Record',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
+            const SizedBox(height: 24),
 
-          const Text(
-            'Date',
-            style: TextStyle(fontSize: 14, color: Colors.black87),
-          ),
-          const SizedBox(height: 8),
-          
-          SizedBox(
-            height: 40,
-            child: DateInputWidget(
-              data: widget.data,
-              onDateSelected: (date) {
-                // Save the date when picked
-                selectedDate = date;
+            const Text(
+              'Date',
+              style: TextStyle(fontSize: 14, color: Colors.black87),
+            ),
+            const SizedBox(height: 8),
+
+            FormField<String>(
+              autovalidateMode: .onUserInteraction,
+              validator: (value) {
+                if (selectedDate == null || selectedDate!.isEmpty) {
+                  return 'Please select a date';
+                }
+                return null;
+              },
+              builder: (formFieldState) {
+                return InputDecorator(
+                  decoration: InputDecoration(
+                    errorText: formFieldState.errorText,
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                  child: SizedBox(
+                    height: 40,
+                    child: DateInputWidget(
+                      data: widget.data,
+                      onDateSelected: (date) {
+                        setState(() {
+                          selectedDate = date;
+                        });
+                        formFieldState.didChange(date);
+                      },
+                    ),
+                  ),
+                );
               },
             ),
-          ),
-          
-          const SizedBox(height: 20),
 
-          TextField(
-            controller: minutesController, // Bind the controller
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(
-              labelText: 'Value in Minutes',
-              labelStyle: TextStyle(color: Colors.grey),
-              floatingLabelBehavior: FloatingLabelBehavior.auto,
-              focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey),
+            const SizedBox(height: 20),
+
+            TextFormField(
+              autovalidateMode: .onUserInteraction,
+              controller: minutesController,
+              inputFormatters: [
+                FilteringTextInputFormatter.deny(RegExp(r'[^0-9]')),
+              ],
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return "Please enter a duration";
+                }
+
+                return null;
+              },
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Value in Minutes',
+                labelStyle: TextStyle(color: Colors.grey),
+                floatingLabelBehavior: FloatingLabelBehavior.auto,
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.grey),
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 24),
-          
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red[900],
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+            const SizedBox(height: 24),
+
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red[900],
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
-            ),
-            onPressed: () {
-              // Ensure both inputs have data
-              if (selectedDate != null && minutesController.text.isNotEmpty) {
-                // Call the Cubit to save the record
+              onPressed: () {
+                if (!formKey.currentState!.validate()) {
+                  return;
+                }
                 context.read<DashboardCubit>().addDashboardRecord(
-                      selectedDate!,
-                      minutesController.text,
-                    );
-                // Close the bottom sheet
-                Navigator.pop(context);
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please select a date and enter minutes')),
+                  selectedDate!,
+                  minutesController.text,
                 );
-              }
-            },
-            child: const Text(
-              'Add',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+                Navigator.pop(context);
+              },
+              child: const Text(
+                'Add',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
             ),
-          ),
-          const SizedBox(height: 20),
-        ],
+            const SizedBox(height: 20),
+          ],
+        ),
       ),
     );
   }

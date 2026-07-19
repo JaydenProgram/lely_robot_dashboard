@@ -87,7 +87,7 @@ void main() {
 
     await tester.tap(loginButton);
 
-    tester.pump();
+    await tester.pump();
 
     verify(() => mockAuthCubit.login("Lely", "LelyControl2")).called(1);
   });

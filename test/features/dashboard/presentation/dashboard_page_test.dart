@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lely_robot_dashboard/features/dashboard/presentation/cubit/dashboard_cubit.dart';
 import 'package:lely_robot_dashboard/features/dashboard/presentation/dashboard_page.dart';
+import 'package:lely_robot_dashboard/features/dashboard/presentation/date_input_widget.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockDashboardCubit extends MockCubit<DashboardState>
@@ -166,6 +167,95 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text("Add Robot Activity Record"), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    "Dashboardpage bottom sheet modal shows error message when no data is provided",
+    (WidgetTester tester) async {
+      when(() => mockDashboardCubit.state).thenReturn(
+        DashboardState(
+          isLoading: false,
+          hasError: false,
+          hasData: true,
+          data: [
+            {"date": "10/08/2025", "duration": "100 min"},
+          ],
+          error: null,
+        ),
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BlocProvider<DashboardCubit>.value(
+            value: mockDashboardCubit,
+            child: DashboardPage(),
+          ),
+        ),
+      );
+
+      final plusButton = find.widgetWithText(FloatingActionButton, "+");
+      await tester.tap(plusButton);
+      await tester.pumpAndSettle();
+
+      final addButton = find.widgetWithText(ElevatedButton, "Add");
+      await tester.tap(addButton);
+
+      await tester.pump();
+
+      expect(find.text("Please select a date"), findsOneWidget);
+      expect(find.text("Please enter a duration"), findsOneWidget);
+
+      verifyNever(() => mockDashboardCubit.addDashboardRecord(any(), any()));
+    },
+  );
+
+  testWidgets(
+    "Dashboardpage bottom sheet modal adds date when correct data is provided",
+    (WidgetTester tester) async {
+      when(() => mockDashboardCubit.state).thenReturn(
+        DashboardState(
+          isLoading: false,
+          hasError: false,
+          hasData: true,
+          data: [
+            {"date": "10/07/2025", "duration": "60 min"},
+          ],
+          error: null,
+        ),
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BlocProvider<DashboardCubit>.value(
+            value: mockDashboardCubit,
+            child: DashboardPage(),
+          ),
+        ),
+      );
+
+      final plusButton = find.widgetWithText(FloatingActionButton, "+");
+      await tester.tap(plusButton);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(DateInputWidget));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text("19"));
+      await tester.tap(find.text("OK"));
+      await tester.pumpAndSettle();
+
+      final durationField = find.widgetWithText(
+        TextFormField,
+        'Value in Minutes',
+      );
+      await tester.enterText(durationField, '60');
+
+      final addButton = find.widgetWithText(ElevatedButton, "Add");
+      await tester.tap(addButton);
+
+      await tester.pump();
+
+      verify(
+        () => mockDashboardCubit.addDashboardRecord("19/07/2026", "60"),
+      ).called(1);
     },
   );
 }
