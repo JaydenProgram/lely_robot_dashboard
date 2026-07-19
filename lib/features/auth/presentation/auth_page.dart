@@ -5,6 +5,7 @@ import 'package:lely_robot_dashboard/features/auth/presentation/cubit/auth_cubit
 class AuthPage extends StatefulWidget {
   const AuthPage({super.key});
 
+  @override
   State<AuthPage> createState() => AuthPageState();
 }
 

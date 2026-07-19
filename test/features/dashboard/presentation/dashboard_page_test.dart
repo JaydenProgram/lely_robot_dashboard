@@ -124,9 +124,9 @@ void main() {
         ),
       );
 
-      final fiveButton = find.widgetWithText(ChoiceChip, "5 days");
-      final sevenButton = find.widgetWithText(ChoiceChip, "7 days");
-      final thirtyButton = find.widgetWithText(ChoiceChip, "30 days");
+      // final fiveButton = find.widgetWithText(ChoiceChip, "5 days");
+      // final sevenButton = find.widgetWithText(ChoiceChip, "7 days");
+      // final thirtyButton = find.widgetWithText(ChoiceChip, "30 days");
       final allButton = find.widgetWithText(ChoiceChip, "All");
 
       await tester.tap(allButton);
