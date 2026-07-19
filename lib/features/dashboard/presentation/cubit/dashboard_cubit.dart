@@ -22,8 +22,8 @@ class DashboardCubit extends Cubit<DashboardState> {
 
   void addDashboardRecord(String date, String durationInMinutes) async {
     try {
-      emit(state.copyWith(true, false, false, state.data, null));
-      await Future.delayed(const Duration(seconds: 1));
+      emit(state.copyWith(true, false, true, state.data, null));
+      // await Future.delayed(const Duration(seconds: 1));
       await dashboardDataSource.saveNewRecord(date, durationInMinutes);
       final updatedData = await dashboardDataSource.fetchCollectorData();
       emit(state.copyWith(false, false, true, updatedData, null));
